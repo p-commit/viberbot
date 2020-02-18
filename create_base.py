@@ -41,3 +41,4 @@ def fill_tables(con):
 
 #create_tables(conn)
 fill_tables(conn)
+print("1231231")

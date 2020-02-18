@@ -15,7 +15,7 @@ def create_tables(con):
         "CREATE TABLE examples(id INTEGER PRIMARY KEY,\
                                 sentence VARCHAR,\
                                 word_id INTEGER,\
-                                FOREIGN KEY(word_id) references words(id))"\
+                                FOREIGN KEY(word_id) references words(id))"
         )
     con.commit()
 
@@ -41,7 +41,3 @@ def fill_tables(con):
 
 #create_tables(conn)
 fill_tables(conn)
-cursor = conn.cursor()
-cursor.execute("SELECT word, translation FROM words")
-words = cursor.fetchall()
-print(words)

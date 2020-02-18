@@ -20,8 +20,6 @@ bot_config = BotConfiguration(
 viber = Api(bot_config)
 round = 3
 users = {}
-with open('english_words.json', 'r', encoding='utf-8') as english_words:
-    words = json.load(english_words)
 
 
 @app.route('/incoming', methods=['POST'])
@@ -127,5 +125,6 @@ class User(object):
 
     def get_rand_example(self):
         ind = random.randint(0, len(self.examples) -1)
+        print("Hell")
         return self.examples[ind]
 

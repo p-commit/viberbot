@@ -1,8 +1,8 @@
 # Индивидуальный тоек viber-бота
-TOKEN = "4ac8db3a0ea7d3a2-fe757afbae7c0ce3-6b22416c221eb549"
+TOKEN = "4ac8d8cbf4e7d1f9-24673fe4c1ca19ac-55268fef733cbeb"
 
 # URL сервера
-URL = "https://c283ac5b.ngrok.io"
+URL = "https://79af48c4.ngrok.io"
 
 # URL-адрес webhook
 WEBHOOK = URL + '/incoming'

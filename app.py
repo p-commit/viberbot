@@ -18,7 +18,7 @@ bot_config = BotConfiguration(
     auth_token=TOKEN
 )
 viber = Api(bot_config)
-round = 3
+round = 5
 users = {}
 
 
@@ -37,7 +37,7 @@ def message_proc(viber_request):
 
     if isinstance(viber_request, ViberMessageRequest):
         user_id = viber_request.sender.id
-
+        print(user_id)
         if user_id not in users.keys():
             new_user = User(user_id)
             users[new_user.id] = new_user
@@ -112,16 +112,6 @@ class User(object):
         self.quest_num = 0
         self.correct = 0
 
-    def get_question(self):
-        ind = random.randint(0, len(words)-1)
-        self.quest_num += 1
-        self.word = words[ind]['word']
-        self.examples =[]
-        self.examples = words[ind]['examples']
-        self.trans = []
-        self.trans.append(words[ind]['translation'])
-        for i in range(0, 3):
-            self.trans.append(words[random.randint(0, len(words)-1)]['translation'])
 
     def get_rand_example(self):
         ind = random.randint(0, len(self.examples) -1)

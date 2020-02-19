@@ -39,8 +39,13 @@ def message_proc(viber_request):
 
     if isinstance(viber_request, ViberMessageRequest):
         user_id = viber_request.sender.id
-        print(user_id)
-        db.add_user(user_id)
+
+        if not db.check_user(user_id):
+            db.add_user(user_id)
+            print("Пользователь добавлен")
+        else:
+            print("Пользователь уже существует")
+
 
         # if user_id not in users.keys():
         #     new_user = User(user_id)

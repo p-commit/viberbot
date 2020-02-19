@@ -17,6 +17,16 @@ class MyDB(object):
             cur.execute("INSERT INTO learning(user_id, word_id, correct)\
                             VALUES(?, ?, ?)", (id, elem[0], 0))
         self.connection.commit()
+    
+    def check_user(self, id):
+        cur = self.connection.cursor()
+        cur.execute("SELECT * FROM users WHERE user_id = ?", (id,))
+        
+        if len(cur.fetchall()) == 0:
+            return False
+        else:
+            return True
+        
 
 
     def get_user(self, id):

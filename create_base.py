@@ -20,7 +20,7 @@ def create_tables(con):
 
     cursor.execute(
         "CREATE TABLE learning(id INTEGER PRIMARY KEY,\
-                                user_id INTEGER,\
+                                user_id VARCHAR,\
                                 word_id INTEGER,\
                                 correct INTEGER,\
                                 date DATETIME,\
@@ -30,7 +30,7 @@ def create_tables(con):
 
     cursor.execute(
         "CREATE TABLE users(id INTEGER PRIMARY KEY,\
-                                user_id INTEGER,\
+                                user_id VARCHAR,\
                                 date DATETIME)"
         )
 

@@ -8,7 +8,7 @@ from viberbot.api.viber_requests import ViberMessageRequest
 from KEYBOARD import MAIN_KEYBOARD, ANSWER_KEYBOARD
 from viberbot.api.viber_requests import ViberConversationStartedRequest
 import random
-import json
+from Classes import User, MyDB
 
 
 app = Flask(__name__)
@@ -20,6 +20,8 @@ bot_config = BotConfiguration(
 viber = Api(bot_config)
 round = 5
 users = {}
+
+db = MyDB()
 
 
 @app.route('/incoming', methods=['POST'])
@@ -38,33 +40,35 @@ def message_proc(viber_request):
     if isinstance(viber_request, ViberMessageRequest):
         user_id = viber_request.sender.id
         print(user_id)
-        if user_id not in users.keys():
-            new_user = User(user_id)
-            users[new_user.id] = new_user
+        db.add_user(user_id)
 
-        message = viber_request.message.text
-        if message == "start" or message == "Давай начнем!":
-            users[user_id].get_question()
-            change_keyboard(user_id)
-            send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
-            return
+        # if user_id not in users.keys():
+        #     new_user = User(user_id)
+        #     users[new_user.id] = new_user
 
-        if message == "Привести пример":
-            ex = users[user_id].get_rand_example()
-            send_message(user_id, ex, ANSWER_KEYBOARD)
-            return
+        # message = viber_request.message.text
+        # if message == "start" or message == "Давай начнем!":
+        #     users[user_id].get_question()
+        #     change_keyboard(user_id)
+        #     send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
+        #     return
 
-        if message == users[user_id].trans[0]:
-            users[user_id].get_question()
-            users[user_id].correct += 1
-            change_keyboard(user_id)
-            next_or_result(user_id, "Верно")
-            return
-        else:
-            users[user_id].get_question()
-            change_keyboard(user_id)
-            next_or_result(user_id, "Не верно")
-            return
+        # if message == "Привести пример":
+        #     ex = users[user_id].get_rand_example()
+        #     send_message(user_id, ex, ANSWER_KEYBOARD)
+        #     return
+
+        # if message == users[user_id].trans[0]:
+        #     users[user_id].get_question()
+        #     users[user_id].correct += 1
+        #     change_keyboard(user_id)
+        #     next_or_result(user_id, "Верно")
+        #     return
+        # else:
+        #     users[user_id].get_question()
+        #     change_keyboard(user_id)
+        #     next_or_result(user_id, "Не верно")
+        #     return
 
 
 answers_ind = [0, 1, 2, 3]
@@ -96,25 +100,5 @@ def send_message(id, text, keyb):
     viber.send_messages(id, [text, keyboard])
 
 
-class User(object):
-    def __init__(self, id):
-        self.id = id
-        self.word = ''
-        self.trans = []
-        self.examples = []
-        self.quest_num = 0
-        self.correct = 0
-
-    def reset(self):
-        self.word = ''
-        self.trans = []
-        self.examples = []
-        self.quest_num = 0
-        self.correct = 0
-
-
-    def get_rand_example(self):
-        ind = random.randint(0, len(self.examples) -1)
-        print("Hell")
-        return self.examples[ind]
-
+if __name__ == '__main__':
+    app.run(port=80)

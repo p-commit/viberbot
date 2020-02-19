@@ -17,6 +17,23 @@ def create_tables(con):
                                 word_id INTEGER,\
                                 FOREIGN KEY(word_id) references words(id))"
         )
+
+    cursor.execute(
+        "CREATE TABLE learning(id INTEGER PRIMARY KEY,\
+                                user_id INTEGER,\
+                                word_id INTEGER,\
+                                correct INTEGER,\
+                                date DATETIME,\
+                                FOREIGN KEY(word_id) references words(id),\
+                                FOREIGN KEY(user_id) references users(id))"
+        )
+
+    cursor.execute(
+        "CREATE TABLE users(id INTEGER PRIMARY KEY,\
+                                user_id INTEGER,\
+                                date DATETIME)"
+        )
+
     con.commit()
 
 
@@ -39,6 +56,5 @@ def fill_tables(con):
         con.commit()
 
 
-#create_tables(conn)
+create_tables(conn)
 fill_tables(conn)
-print("1231231")

@@ -56,5 +56,5 @@ def fill_tables(con):
         con.commit()
 
 
-create_tables(conn)
+#create_tables(conn)
 fill_tables(conn)

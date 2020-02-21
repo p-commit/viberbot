@@ -90,7 +90,7 @@ def send_result(id, text):
     message = "Результат: " + str(users[id].correct) + "/" + str(round)
     viber.send_messages(id, TextMessage(text=message))
     info = db.get_user_info(id)
-    message = "Выучено %d из %d \nПоследний опрос: %s'" % info
+    message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
     users[id].reset()
     users.pop(id)

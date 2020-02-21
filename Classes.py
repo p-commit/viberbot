@@ -80,17 +80,16 @@ class MyDB(object):
                         WHERE user_id = ?", (id,))
         
         last_answer_date = cur.fetchone()
-        print(last_answer_date)
         
         cur.execute("SELECT * FROM words")
         words_count = len(cur.fetchall())
-        print(words_count)
+
 
         cur.execute("SELECT * FROM learning\
                         WHERE user_id = ? AND correct > ?", (id, 20))
         learn  = len(cur.fetchall())
-        print(learn)
-        return (learn, words_count, last_answer_date[0])
+
+        return (learn, words_count, last_answer_date[0][:16])
 
 
 

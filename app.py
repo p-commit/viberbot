@@ -8,7 +8,7 @@ from viberbot.api.viber_requests import ViberMessageRequest
 from KEYBOARD import MAIN_KEYBOARD, ANSWER_KEYBOARD
 from viberbot.api.viber_requests import ViberConversationStartedRequest
 import random
-from Classes import User, MyDB
+from Classes import User, MyDB, db
 
 
 app = Flask(__name__)
@@ -21,7 +21,6 @@ viber = Api(bot_config)
 round = 5
 users = {}
 
-db = MyDB()
 
 
 @app.route('/incoming', methods=['POST'])
@@ -46,16 +45,14 @@ def message_proc(viber_request):
             db.add_user(user_id)
             print("Пользователь добавлен")
  
-            
-
-
-        # if user_id not in users.keys():
+        message = viber_request.message.text
+        
+        if message == "start" or message == "Давай начнем!":
+            db.correct_answer(user_id, "спрашивать")
         #     new_user = User(user_id)
         #     users[new_user.id] = new_user
-
-        # message = viber_request.message.text
-        # if message == "start" or message == "Давай начнем!":
-        #     users[user_id].get_question()
+            
+        #     users[user_id].get_question()          
         #     change_keyboard(user_id)
         #     send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
         #     return

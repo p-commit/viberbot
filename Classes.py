@@ -28,11 +28,6 @@ class MyDB(object):
         else:
             return True
 
-    def get_user(self, id):
-        cur = self.connection.cursor()
-        cur.execute("SELECT * FROM users WHERE user_id = ?", (id,))
-        user_id  = cur.fetchone()
-        return user_id
 
     def get_question(self, id):
         cur = self.connection.cursor()
@@ -66,11 +61,36 @@ class MyDB(object):
         cur.execute("UPDATE learning \
                         SET correct = ?, date = ?\
                         WHERE user_id = ? AND word_id = ?", (word_learn[1]+1, dt.now(), id, word_learn[0]))
+
+
         self.connection.commit()
 
         print(word_learn)
+    
+    def update_answer_date(self, id):
+        cur = self.connection.cursor()
+        cur.execute("UPDATE users \
+                        SET date = ?\
+                        WHERE user_id = ?", (dt.now(), id))
+        self.connection.commit()
+    
+    def get_user_info(self, id):
+        cur = self.connection.cursor()
+        cur.execute("SELECT date FROM users\
+                        WHERE user_id = ?", (id,))
+        
+        last_answer_date = cur.fetchone()
+        print(last_answer_date)
+        
+        cur.execute("SELECT * FROM words")
+        words_count = len(cur.fetchall())
+        print(words_count)
 
-
+        cur.execute("SELECT * FROM learning\
+                        WHERE user_id = ? AND correct > ?", (id, 20))
+        learn  = len(cur.fetchall())
+        print(learn)
+        return (learn, words_count, last_answer_date[0])
 
 
 
@@ -84,8 +104,11 @@ class User(object):
         self.correct = 0
 
     def get_question(self):
+        self.quest_num +=1
+        self.trans = []
+        self.examples = []
         quest = db.get_question(self.id)
-        
+
         self.word = quest[0][1]
 
         for i in range(0,4):
@@ -100,6 +123,13 @@ class User(object):
         self.examples = []
         self.quest_num = 0
         self.correct = 0
+    
+    def update_date(self):
+        db.update_answer_date(self.id)
+
+    def correct_ans(self):
+        self.correct +=1
+        db.correct_answer(self.id, self.word)
 
 
     def get_rand_example(self):

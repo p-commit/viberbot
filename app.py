@@ -18,7 +18,7 @@ bot_config = BotConfiguration(
     auth_token=TOKEN
 )
 viber = Api(bot_config)
-round = 5
+round = 3
 users = {}
 
 
@@ -39,40 +39,39 @@ def message_proc(viber_request):
     if isinstance(viber_request, ViberMessageRequest):
         user_id = viber_request.sender.id
 
-        if db.check_user(user_id):
-            print("Пользователь уже существует")
-        else:
+        if not db.check_user(user_id):
             db.add_user(user_id)
-            print("Пользователь добавлен")
- 
+        
         message = viber_request.message.text
         
         if message == "start" or message == "Давай начнем!":
-            db.correct_answer(user_id, "спрашивать")
-        #     new_user = User(user_id)
-        #     users[new_user.id] = new_user
+
+            new_user = User(user_id)
+            users[new_user.id] = new_user
             
-        #     users[user_id].get_question()          
-        #     change_keyboard(user_id)
-        #     send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
-        #     return
+            users[user_id].get_question()          
+            change_keyboard(user_id)
+            send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
+            return
 
-        # if message == "Привести пример":
-        #     ex = users[user_id].get_rand_example()
-        #     send_message(user_id, ex, ANSWER_KEYBOARD)
-        #     return
+        if message == "Привести пример":
+            ex = users[user_id].get_rand_example()
+            send_message(user_id, ex, ANSWER_KEYBOARD)
+            return
 
-        # if message == users[user_id].trans[0]:
-        #     users[user_id].get_question()
-        #     users[user_id].correct += 1
-        #     change_keyboard(user_id)
-        #     next_or_result(user_id, "Верно")
-        #     return
-        # else:
-        #     users[user_id].get_question()
-        #     change_keyboard(user_id)
-        #     next_or_result(user_id, "Не верно")
-        #     return
+        if message == users[user_id].trans[0]:
+            users[user_id].get_question()
+            users[user_id].correct_ans()
+            users[user_id].update_date()
+            change_keyboard(user_id)
+            next_or_result(user_id, "Верно")
+            return
+        else:
+            users[user_id].get_question()
+            users[user_id].update_date()
+            change_keyboard(user_id)
+            next_or_result(user_id, "Не верно")
+            return
 
 
 answers_ind = [0, 1, 2, 3]
@@ -82,13 +81,19 @@ def next_or_result(id, text):
     if users[id].quest_num == round + 1:
         send_result(id, text)
     else:
-        send_message(id, text+"\n" + users[id].word, ANSWER_KEYBOARD)
+        viber.send_messages(id, TextMessage(text=text))
+        send_message(id, users[id].word, ANSWER_KEYBOARD)
 
 
 def send_result(id, text):
-    message = text + "\nРезультат:" + str(users[id].correct) + "/" + str(round)
-    users[id].reset()
+    viber.send_messages(id, TextMessage(text=text))
+    message = "Результат: " + str(users[id].correct) + "/" + str(round)
+    viber.send_messages(id, TextMessage(text=message))
+    info = db.get_user_info(id)
+    message = "Выучено %d из %d \nПоследний опрос: %s'" % info
     send_message(id, message, MAIN_KEYBOARD)
+    users[id].reset()
+    users.pop(id)
 
 
 def change_keyboard(id):

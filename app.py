@@ -74,7 +74,7 @@ def message_proc(viber_request):
             print("OK")
             users[user_id].get_question()
             users[user_id].correct_ans()
-            #users[user_id].update_date()
+            users[user_id].update_date()
             change_keyboard(user_id)
             next_or_result(user_id, "Верно")
             return
@@ -102,7 +102,7 @@ def send_result(id, text):
     viber.send_messages(id, TextMessage(text=text))
     message = "Результат: " + str(users[id].correct) + "/" + str(round)
     viber.send_messages(id, TextMessage(text=message))
-    info = db.get_user_info(id)
+    info = c.mydb.get_user_info(id)
     message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
     users[id].reset()

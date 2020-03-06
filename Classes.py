@@ -1,71 +1,57 @@
 import random
 import sqlite3
 from datetime import datetime as dt
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime, create_engine
+import models as m
+from app import db
+
 
 class MyDB(object):
-    def __init__(self):
-        self.connection = sqlite3.connect("project.db", check_same_thread = False)
-
 
     def add_user(self, id):
-        cur = self.connection.cursor()
-        cur.execute("INSERT INTO users(user_id) VALUES(?)", (id,))
-
-        cur.execute("SELECT id FROM words")
-        words_ind = cur.fetchall()
+        u = m.Users(user_id = id)
+        db.session.add(u)
         
-        for elem in words_ind:
-            cur.execute("INSERT INTO learning(user_id, word_id, correct)\
-                            VALUES(?, ?, ?)", (id, elem[0], 0))
-        self.connection.commit()
+        w = db.session.query(m.Words).all()
+        for word in w:
+            l = m.Learning(user_id = id, word_id = word.id, correct = 0)
+            db.session.add(l)
+
+        db.session.commit()
+
     
     def check_user(self, id):
-        cur = self.connection.cursor()
-        cur.execute("SELECT * FROM users WHERE user_id = ?", (id,))
-        
-        if len(cur.fetchall()) == 0:
-            return False
-        else:
+        u = db.session.query(m.Users).filter(m.Users.user_id == id).all()
+        if len(u) > 0:
             return True
+        return False
 
 
     def get_question(self, id):
-        cur = self.connection.cursor()
-        cur.execute("SELECT words.id, translation, word\
-                        FROM learning \
-                        JOIN words \
-                            ON learning.word_id = words.id\
-                        WHERE user_id = ? AND correct < ?\
-                            ORDER BY RANDOM() LIMIT 4", (id, 20))
-        words = cur.fetchall()
+        cor = 5
+        res = []
+        words = db.session.query(m.Learning, m.Words).filter(m.Learning.user_id == id, m.Learning.correct < cor)
+        words = words.join(m.Learning, m.Learning.word_id == m.Words.id).all()
+        words = random.sample(words, 4)
+
+        for elem in words:
+            res.append(elem[1])
+
+        ex = db.session.query(m.Examples).filter(m.Examples.word_id == words[0][1].id).all()
+        for elem in ex:
+            res.append(elem.sentence)
         
-        cur.execute("SELECT sentence\
-                        FROM examples\
-                        WHERE word_id = ?", (words[0][0],))
-        examples = cur.fetchall()
-        
-        for elem in examples:
-            words.append(elem)
-        
-        return words
+        return res
 
     def correct_answer(self, id, word):
-        cur = self.connection.cursor()
-        cur.execute("SELECT words.id, correct, date\
-                        FROM learning\
-                        JOIN words\
-                            ON words.id = learning.word_id\
-                    WHERE user_id = ? AND translation = ?", (id, word))
-        word_learn = cur.fetchone()
-            
-        cur.execute("UPDATE learning \
-                        SET correct = ?, date = ?\
-                        WHERE user_id = ? AND word_id = ?", (word_learn[1]+1, dt.now(), id, word_learn[0]))
+        print(id)
+        print(word)
+        words = db.session.query(m.Learning, m.Words).filter(m.Learning.user_id == id, m.Words.translation == word)
+        words = words.join(m.Learning, m.Learning.word_id == m.Words.id).all()
 
-
-        self.connection.commit()
-
-        print(word_learn)
+        word = words[1]
+        print(word)
+        print(word.date)
     
     def update_answer_date(self, id):
         cur = self.connection.cursor()
@@ -75,23 +61,20 @@ class MyDB(object):
         self.connection.commit()
     
     def get_user_info(self, id):
-        cur = self.connection.cursor()
-        cur.execute("SELECT date FROM users\
-                        WHERE user_id = ?", (id,))
         
-        last_answer_date = cur.fetchone()
+        date = db.session.query(Users).filter(m.Users.user_id == id).first()
         
-        cur.execute("SELECT * FROM words")
-        words_count = len(cur.fetchall())
+        last_answer_date = date.date
+        
+        words = db.session.query(m.Words).all()
+        words_count = len(words)
 
-
-        cur.execute("SELECT * FROM learning\
-                        WHERE user_id = ? AND correct > ?", (id, 20))
-        learn  = len(cur.fetchall())
+        learn_words = db.session.query(m.Learning).filter(m.Words.user_id == id, m.Words.correct > 5).all()
+        learn  = len(learn_words)
 
         return (learn, words_count, last_answer_date[0][:16])
 
-
+mydb = MyDB()
 
 class User(object):
     def __init__(self, id):
@@ -106,15 +89,16 @@ class User(object):
         self.quest_num +=1
         self.trans = []
         self.examples = []
-        quest = db.get_question(self.id)
+        quest = mydb.get_question(self.id)
 
-        self.word = quest[0][1]
-
+        self.word = quest[0].word
         for i in range(0,4):
-            self.trans.append(quest[i][2])
-        
+             self.trans.append(quest[i].translation)
+
+
         for i in range(4, len(quest)-1):
-            self.examples.append(quest[i][0])
+             self.examples.append(quest[i])
+
 
     def reset(self):
         self.word = ''
@@ -128,7 +112,7 @@ class User(object):
 
     def correct_ans(self):
         self.correct +=1
-        db.correct_answer(self.id, self.word)
+        mydb.correct_answer(self.id, self.trans[0])
 
 
     def get_rand_example(self):
@@ -136,4 +120,3 @@ class User(object):
         return self.examples[ind]
 
 
-db = MyDB()

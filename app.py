@@ -7,11 +7,18 @@ from viberbot.api.messages.keyboard_message import KeyboardMessage
 from viberbot.api.viber_requests import ViberMessageRequest
 from KEYBOARD import MAIN_KEYBOARD, ANSWER_KEYBOARD
 from viberbot.api.viber_requests import ViberConversationStartedRequest
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime, create_engine
 import random
-from Classes import User, MyDB, db
+from flask_sqlalchemy import SQLAlchemy
+import Classes as c
 
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'
+
+db = SQLAlchemy(app)
+
+
 bot_config = BotConfiguration(
     name='weBoth',
     avatar='https://viber.com/avatar/jpg',
@@ -20,6 +27,7 @@ bot_config = BotConfiguration(
 viber = Api(bot_config)
 round = 3
 users = {}
+
 
 
 
@@ -38,18 +46,21 @@ def message_proc(viber_request):
 
     if isinstance(viber_request, ViberMessageRequest):
         user_id = viber_request.sender.id
-
-        if not db.check_user(user_id):
-            db.add_user(user_id)
         
+        if not c.mydb.check_user(user_id):
+            c.mydb.add_user(user_id)
+     
         message = viber_request.message.text
         
-        if message == "start" or message == "Давай начнем!":
-
-            new_user = User(user_id)
+        if message == "start" or message == "Давай начнем!" or message == 'S':
+            new_user = c.User(user_id)
             users[new_user.id] = new_user
-            
-            users[user_id].get_question()          
+
+            users[user_id].get_question()     
+            print(users[user_id].word) 
+            for elem in  users[user_id].trans:
+                print(elem)
+
             change_keyboard(user_id)
             send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
             return
@@ -60,13 +71,15 @@ def message_proc(viber_request):
             return
 
         if message == users[user_id].trans[0]:
+            print("OK")
             users[user_id].get_question()
             users[user_id].correct_ans()
-            users[user_id].update_date()
+            #users[user_id].update_date()
             change_keyboard(user_id)
             next_or_result(user_id, "Верно")
             return
         else:
+            print("NEOK")
             users[user_id].get_question()
             users[user_id].update_date()
             change_keyboard(user_id)
@@ -107,6 +120,7 @@ def send_message(id, text, keyb):
     text = TextMessage(text=text)
     keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=keyb)
     viber.send_messages(id, [text, keyboard])
+
 
 
 if __name__ == '__main__':

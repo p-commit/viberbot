@@ -1,7 +1,6 @@
 import random
 import sqlite3
 from datetime import datetime as dt
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime, create_engine
 import models as m
 from app import db
 
@@ -56,6 +55,7 @@ class MyDB(object):
         user.date = dt.now()
         db.session.commit()
 
+        
     def get_user_info(self, id):
 
         date = db.session.query(Users).filter(m.Users.user_id == id).first()

@@ -2,7 +2,7 @@
 TOKEN = "4ac8d8cbf4e7d1f9-24673fe4c1ca19ac-55268fef733cbeb"
 
 # URL сервера
-URL = "https://a1eee5f8.ngrok.io"
+URL = "https://698387ce.ngrok.io"
 
 # URL-адрес webhook
 WEBHOOK = URL + '/incoming'

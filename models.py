@@ -1,6 +1,4 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime, create_engine
-#from app import db
-
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()

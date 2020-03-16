@@ -7,7 +7,7 @@ from viberbot.api.messages.keyboard_message import KeyboardMessage
 from viberbot.api.viber_requests import ViberMessageRequest
 from KEYBOARD import MAIN_KEYBOARD, ANSWER_KEYBOARD
 from viberbot.api.viber_requests import ViberConversationStartedRequest
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime, create_engine
+
 import random
 from flask_sqlalchemy import SQLAlchemy
 import Classes as c
@@ -69,6 +69,9 @@ def message_proc(viber_request):
             ex = users[user_id].get_rand_example()
             send_message(user_id, ex, ANSWER_KEYBOARD)
             return
+
+        if message == "Отложить":
+            c.mydb.update_answer_date(user_id)
 
         if message == users[user_id].trans[0]:
             print("OK")

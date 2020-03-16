@@ -68,3 +68,28 @@ ANSWER_KEYBOARD = {
 
     ]
 }
+
+NOTIFICATION_KEYBOARD = {
+"Type": "keyboard",
+"Buttons": [
+	{
+	"Columns": 6,
+	"Rows": 1,
+	"BgColor": "#e6f5ff",
+	"ActionType": "reply",
+	"ActionBody": "Давай начнем!",
+	"ReplyType": "message",
+	"Text": "Давай начнем!"
+	},
+
+	{
+	"Columns": 6,
+	"Rows": 1,
+	"BgColor": "#e6f5fa",
+	"ActionType": "reply",
+	"ActionBody": "Отложить",
+	"ReplyType": "message",
+	"Text": "Отложить"
+	}
+    ]
+}

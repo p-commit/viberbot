@@ -4,7 +4,7 @@ from viberbot.api.bot_configuration import BotConfiguration
 
 bot_configuration = BotConfiguration(
     name='weBoth',
-    avatar='https://viber.com/avatar/jpg',
+    avatar='weath.pythonanywhere.com',
     auth_token=TOKEN
 )
 

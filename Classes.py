@@ -58,18 +58,18 @@ class MyDB(object):
         
     def get_user_info(self, id):
 
-        date = db.session.query(Users).filter(m.Users.user_id == id).first()
+        date = db.session.query(m.Users).filter(m.Users.user_id == id).first()
 
         last_answer_date = date.date
-
+        print(last_answer_date)
         words = db.session.query(m.Words).all()
         words_count = len(words)
 
         learn_words = db.session.query(m.Learning).filter(
-            m.Words.user_id == id, m.Words.correct > 5).all()
+            m.Learning.user_id == id, m.Learning.correct > 5).all()
         learn = len(learn_words)
 
-        return (learn, words_count, last_answer_date[0][:16])
+        return (learn, words_count, last_answer_date)
 
 
 mydb = MyDB()

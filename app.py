@@ -32,7 +32,7 @@ users = {}
 @app.route('/')
 def hello_world():  
     return 'Test page'
-    
+
 @app.route('/incoming', methods=['POST'])
 def incoming():
     viber_request = viber.parse_request(request.get_data())
@@ -79,7 +79,10 @@ def message_proc(viber_request):
             return
         
         if message == 'test':
-            send_text_mess(user_id, 'test')
+            from models import Users
+            test = db.session.query(Users)[0].user_id
+            send_text_mess(user_id, test)
+            return
 
         if message == users[user_id].trans[0]:
             print("OK")
@@ -131,6 +134,10 @@ def send_message(id, text, keyb):
     text = TextMessage(text=text)
     keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=keyb)
     viber.send_messages(id, [text, keyboard])
+
+def send_text_mess(id, text):
+    text = TextMessage(text=text)
+    viber.send_messages(id, text)
 
 
 

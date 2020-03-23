@@ -29,9 +29,10 @@ viber = Api(bot_config)
 round = 3
 users = {}
 
-
-
-
+@app.route('/')
+def hello_world():  
+    return 'Test page'
+    
 @app.route('/incoming', methods=['POST'])
 def incoming():
     viber_request = viber.parse_request(request.get_data())
@@ -76,6 +77,9 @@ def message_proc(viber_request):
             mess = 'Отложено'
             send_text_mess(user_id, mess)
             return
+        
+        if message == 'test':
+            send_text_mess(user_id, 'test')
 
         if message == users[user_id].trans[0]:
             print("OK")

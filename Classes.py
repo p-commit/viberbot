@@ -1,6 +1,7 @@
 import random
 import sqlite3
 from datetime import datetime as dt
+from datetime import timedelta
 import models as m
 from app import db
 
@@ -55,11 +56,10 @@ class MyDB(object):
         user.date = dt.now()
         db.session.commit()
 
-        
+
     def get_user_info(self, id):
 
         date = db.session.query(m.Users).filter(m.Users.user_id == id).first()
-
         last_answer_date = date.date
         print(last_answer_date)
         words = db.session.query(m.Words).all()

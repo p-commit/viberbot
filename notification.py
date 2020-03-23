@@ -31,12 +31,25 @@ def send_message(id, text, keyb):
     keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=keyb)
     viber.send_messages(id, [text, keyboard])
 
+def send_text_message(id, text):
+    text = TextMessage(text=text)
+    viber.send_messages(id, text)
 
-@sched.scheduled_job('interval', minutes=1) 
+
+@sched.scheduled_job('interval', seconds= 10) 
 def send_notification():
+   
+    min = 1
     users = db.session.query(Users)
+   
     for elem in users:
         delta_time = dt.datetime.now() - elem.date
-        delta_in_minutes = delta_time.days * 24 * 60 + delta_time.seconds // 60
-        if delta_in_minutes > 1:
-            send_message(elem.user_id, "Вы давно не повторяли слова, желаете повторить?", NOTIFICATION_KEYBOARD)
+        delta_in_minutes = delta_time.days * 24 * 60 + delta_time.seconds / 60
+        print(delta_in_minutes)
+
+        if delta_in_minutes < min:
+            send_text_message(elem.user_id, "До уведомления еще " + str(min*60 - delta_in_minutes * 60) + " секунд")  
+        else:
+            send_message(elem.user_id, "Вы давно не повторяли слова, желаете повторить?", NOTIFICATION_KEYBOARD)          
+            
+sched.start()

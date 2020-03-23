@@ -8,7 +8,6 @@ class Examples(Base):
     id = Column(Integer, primary_key=True)
     sentence = Column(String)
     word_id = Column(Integer, ForeignKey('Words.id'))
-    #word = relationship('Words')
 
     def __str__(self):
         return "{}".format(self.sentence)

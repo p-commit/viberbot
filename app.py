@@ -10,7 +10,7 @@ from viberbot.api.viber_requests import ViberConversationStartedRequest
 
 import random
 from flask_sqlalchemy import SQLAlchemy
-import Classes as c
+
 
 
 app = Flask(__name__)
@@ -28,6 +28,7 @@ bot_config = BotConfiguration(
 viber = Api(bot_config)
 round = 3
 users = {}
+import Classes as c
 
 @app.route('/')
 def hello_world():  

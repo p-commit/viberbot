@@ -49,7 +49,8 @@ def send_notification():
 
         if delta_in_minutes < min:
             send_text_message(elem.user_id, "До уведомления еще " + str(min*60 - delta_in_minutes * 60) + " секунд")  
-        else:
+        
+        if delta_in_minutes >=min:
             send_message(elem.user_id, "Вы давно не повторяли слова, желаете повторить?", NOTIFICATION_KEYBOARD)          
             
 sched.start()

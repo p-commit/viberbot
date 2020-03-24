@@ -28,8 +28,10 @@ class MyDB(object):
     def get_question(self, id):
         cor = 5
         res = []
+        user = db.session.query(m.Users).filter(m.Users.user_id == id).first()
+        
         words = db.session.query(m.Learning, m.Words).filter(
-            m.Learning.user_id == id, m.Learning.correct < cor)
+            m.Learning.user_id == user.id, m.Learning.correct < cor)
         words = words.join(m.Learning, m.Learning.word_id == m.Words.id).all()
         words = random.sample(words, 4)
 
@@ -44,8 +46,10 @@ class MyDB(object):
         return res
 
     def correct_answer(self, id, word):
+        user = db.session.query(m.Users).filter(m.Users.user_id == id).first()
+        
         words = db.session.query(m.Learning, m.Words).filter(
-            m.Learning.user_id == id, m.Words.translation == word)
+            m.Learning.user_id == user.id, m.Words.translation == word)
         words = words.join(m.Learning, m.Learning.word_id == m.Words.id).all()
         words[0][0].correct += 1
         words[0][0].date = dt.now()
@@ -60,13 +64,14 @@ class MyDB(object):
     def get_user_info(self, id):
 
         date = db.session.query(m.Users).filter(m.Users.user_id == id).first()
+ 
         last_answer_date = date.date
-        print(last_answer_date)
+
         words = db.session.query(m.Words).all()
         words_count = len(words)
 
         learn_words = db.session.query(m.Learning).filter(
-            m.Learning.user_id == id, m.Learning.correct > 5).all()
+            m.Learning.user_id == date.id, m.Learning.correct > 5).all()
         learn = len(learn_words)
 
         return (learn, words_count, last_answer_date)

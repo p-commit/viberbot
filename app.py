@@ -15,7 +15,7 @@ import Classes as c
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://vnabokolponior:f9dff1d8f89eeaf36df0db2c1fd8ccb16aa102117ac124de103ecd01f28600d4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/det6llngpgcpf7'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://jmltjbrbcabuar:f56c2482cf2dee0bd2bea44a1a622fdc30ceb0c0c1b81b207c0e98a565b89c06@ec2-54-247-118-139.eu-west-1.compute.amazonaws.com:5432/d1rt4olcajrbb2'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 

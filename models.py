@@ -4,17 +4,17 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class Examples(Base):
-    __tablename__ = 'Examples'
+    __tablename__ = 'examples'
     id = Column(Integer, primary_key=True)
     sentence = Column(String)
-    word_id = Column(Integer, ForeignKey('Words.id'))
+    word_id = Column(Integer, ForeignKey('words.id'))
 
     def __str__(self):
         return "{}".format(self.sentence)
 
 
 class Words(Base):
-    __tablename__ = 'Words'
+    __tablename__ = 'words'
     id = Column(Integer, primary_key=True)
     word = Column(String)
     translation = Column(String)
@@ -24,20 +24,20 @@ class Words(Base):
 
 
 class Learning(Base):
-    __tablename__ = 'Learning'
+    __tablename__ = 'learning'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('Users.user_id'))
-    word_id = Column(Integer, ForeignKey('Words.id'))
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    word_id = Column(Integer, ForeignKey('words.id'))
     correct = Column(Integer)
     date = Column(DateTime)
 
 
 
 class Users(Base):
-    __tablename__ = 'Users'
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     user_id = Column(String, unique=True)
     date = Column(DateTime)
-    
+
     def __repr__(self):
         return '<User %r>' % (self.user_id)

@@ -1,2 +1,2 @@
-web: gunicorn app:app
+web: gunicorn app
 clock: python notification.py

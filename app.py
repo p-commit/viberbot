@@ -51,7 +51,6 @@ def set_settings():
 @app.route('/incoming', methods=['POST'])
 def incoming():
     viber_request = viber.parse_request(request.get_data())
-    print(viber_request)
     message_proc(viber_request)
     return Response(status=200)
 
@@ -69,8 +68,7 @@ def message_proc(viber_request):
             c.mydb.add_user(user_id)
      
         message = viber_request.message.text
-        print(viber_request.message_token)
-        
+
         if message == "start" or message == "Давай начнем!" or message == 'S':
             print('start')
             if users.get(user_id) == None:
@@ -80,9 +78,6 @@ def message_proc(viber_request):
                 users[user_id].reset()
 
             users[user_id].get_question()     
-            print(users[user_id].word) 
-            for elem in  users[user_id].trans:
-                print(elem)
 
             change_keyboard(user_id)
             m = 'Вопрос '+str(users[user_id].quest_num) + '\n' + users[user_id].word
@@ -118,7 +113,6 @@ def message_proc(viber_request):
                 change_keyboard(user_id)
                 next_or_result(user_id, "Не верно")
                 return
-            return
         else: 
             return
 

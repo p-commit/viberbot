@@ -51,6 +51,7 @@ def set_settings():
 @app.route('/incoming', methods=['POST'])
 def incoming():
     viber_request = viber.parse_request(request.get_data())
+    print(viber_request)
     message_proc(viber_request)
     return Response(status=200)
 
@@ -68,11 +69,15 @@ def message_proc(viber_request):
             c.mydb.add_user(user_id)
      
         message = viber_request.message.text
+        print(viber_request.message_token)
         
         if message == "start" or message == "Давай начнем!" or message == 'S':
             print('start')
-            new_user = c.User(user_id)
-            users[new_user.id] = new_user
+            if users.get(user_id) == None:
+                new_user = c.User(user_id)
+                users[new_user.id] = new_user
+            else:
+                users[user_id].reset()
 
             users[user_id].get_question()     
             print(users[user_id].word) 
@@ -80,7 +85,7 @@ def message_proc(viber_request):
                 print(elem)
 
             change_keyboard(user_id)
-            send_message(user_id, users[user_id].word, ANSWER_KEYBOARD)
+            send_message(user_id, 'Вопрос '+str(users[user_id].quest_num) + '\n' users[user_id].word, ANSWER_KEYBOARD)
             return
 
         if message == "Привести пример":
@@ -112,6 +117,9 @@ def message_proc(viber_request):
                 change_keyboard(user_id)
                 next_or_result(user_id, "Не верно")
                 return
+            return
+        else: 
+            return
 
 
 answers_ind = [0, 1, 2, 3]
@@ -119,13 +127,15 @@ answers_ind = [0, 1, 2, 3]
 
 def next_or_result(id, text):
     s = c.mydb.get_settings()
-
+    print(users[id].quest_num)
+    print(s.round)
     if users[id].quest_num == s.round + 1:
         send_result(id, text)
         return
     else:
         viber.send_messages(id, TextMessage(text=text))
-        send_message(id, users[id].word, ANSWER_KEYBOARD)
+        m = 'Вопрос ' +str(users[id].quest_num) + str(users[id].word)
+        send_message(id, m, ANSWER_KEYBOARD)
         return
 
 

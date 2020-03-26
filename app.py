@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response,url_for, render_template, redirect
 from settings import TOKEN
 from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
@@ -25,13 +25,28 @@ bot_config = BotConfiguration(
     auth_token=TOKEN
 )
 viber = Api(bot_config)
-round = 3
 users = {}
 import Classes as c
 
 @app.route('/')
-def hello_world():  
-    return 'Test page'
+def index():  
+    return render_template('index.html')
+
+@app.route('/settings')
+def settings():  
+    s = c.mydb.get_settings()
+    return render_template('settings.html', time=s.time, round = s.round, cwords=s.cwords)
+
+@app.route("/sapply", methods=['POST'])
+def set_settings():
+    if request.method == 'POST':
+        time = int(request.form.get('time'))
+        round = int(request.form.get('round'))
+        cwords = int(request.form.get('cwords'))
+
+        c.mydb.set_settings(time, round, cwords)
+
+    return redirect(url_for("settings"))
 
 @app.route('/incoming', methods=['POST'])
 def incoming():
@@ -55,6 +70,7 @@ def message_proc(viber_request):
         message = viber_request.message.text
         
         if message == "start" or message == "Давай начнем!" or message == 'S':
+            print('start')
             new_user = c.User(user_id)
             users[new_user.id] = new_user
 
@@ -68,6 +84,7 @@ def message_proc(viber_request):
             return
 
         if message == "Привести пример":
+            print('Пример')
             ex = users[user_id].get_rand_example()
             send_message(user_id, ex, ANSWER_KEYBOARD)
             return
@@ -78,49 +95,52 @@ def message_proc(viber_request):
             send_text_mess(user_id, mess)
             return
         
-        if message == 'test':
-            from models import Users
-            test = db.session.query(Users)[0].user_id
-            send_text_mess(user_id, test)
-            return
-
-        if message == users[user_id].trans[0]:
-            print("OK")
-            users[user_id].get_question()
-            users[user_id].correct_ans()
-            users[user_id].update_date()
-            change_keyboard(user_id)
-            next_or_result(user_id, "Верно")
-            return
-        else:
-            print("NEOK")
-            users[user_id].get_question()
-            users[user_id].update_date()
-            change_keyboard(user_id)
-            next_or_result(user_id, "Не верно")
-            return
+        if users.get(user_id) != None:
+            print('Ответ')
+            if message == users[user_id].trans[0]:
+                print("OK")
+                users[user_id].get_question()
+                users[user_id].correct_ans()
+                users[user_id].update_date()
+                change_keyboard(user_id)
+                next_or_result(user_id, "Верно")
+                return
+            else:
+                print("NEOK")
+                users[user_id].get_question()
+                users[user_id].update_date()
+                change_keyboard(user_id)
+                next_or_result(user_id, "Не верно")
+                return
 
 
 answers_ind = [0, 1, 2, 3]
 
 
 def next_or_result(id, text):
-    if users[id].quest_num == round + 1:
+    s = c.mydb.get_settings()
+
+    if users[id].quest_num == s.round + 1:
         send_result(id, text)
+        return
     else:
         viber.send_messages(id, TextMessage(text=text))
         send_message(id, users[id].word, ANSWER_KEYBOARD)
+        return
 
 
 def send_result(id, text):
+    s = c.mydb.get_settings()
+
     viber.send_messages(id, TextMessage(text=text))
-    message = "Результат: " + str(users[id].correct) + "/" + str(round)
+    message = "Результат: " + str(users[id].correct) + "/" + str(s.round)
     viber.send_messages(id, TextMessage(text=message))
     info = c.mydb.get_user_info(id)
     message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
     users[id].reset()
     users.pop(id)
+    return
 
 
 def change_keyboard(id):

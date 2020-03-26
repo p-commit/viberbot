@@ -60,6 +60,16 @@ class MyDB(object):
         user.date = dt.now()
         db.session.commit()
 
+    def get_settings(self):
+        settings = db.session.query(m.Settings).first()
+        return settings
+
+    def set_settings(self, time, round, cwords):
+        settings = db.session.query(m.Settings).first()
+        settings.time = time
+        settings.round = round
+        settings.cwords = cwords
+        db.session.commit()
 
     def get_user_info(self, id):
 
@@ -70,8 +80,9 @@ class MyDB(object):
         words = db.session.query(m.Words).all()
         words_count = len(words)
 
-        learn_words = db.session.query(m.Learning).filter(
-            m.Learning.user_id == date.id, m.Learning.correct > 5).all()
+        s = db.session.query(m.Settings).first()
+
+        learn_words = db.session.query(m.Learning).filter(m.Learning.correct > s.cwords).all()
         learn = len(learn_words)
 
         return (learn, words_count, last_answer_date)

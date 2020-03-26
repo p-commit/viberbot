@@ -41,3 +41,12 @@ class Users(Base):
 
     def __repr__(self):
         return '<User %r>' % (self.user_id)
+
+class Settings(Base):
+    __tablename__ = 'settings'
+    id = Column(Integer, primary_key=True)
+    time = Column(Integer)
+    round = Column(Integer)
+    cwords = Column(Integer)
+    
+

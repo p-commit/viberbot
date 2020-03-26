@@ -85,7 +85,8 @@ def message_proc(viber_request):
                 print(elem)
 
             change_keyboard(user_id)
-            send_message(user_id, 'Вопрос '+str(users[user_id].quest_num) + '\n' users[user_id].word, ANSWER_KEYBOARD)
+            m = 'Вопрос '+str(users[user_id].quest_num) + '\n' + users[user_id].word
+            send_message(user_id, m, ANSWER_KEYBOARD)
             return
 
         if message == "Привести пример":
@@ -134,7 +135,7 @@ def next_or_result(id, text):
         return
     else:
         viber.send_messages(id, TextMessage(text=text))
-        m = 'Вопрос ' +str(users[id].quest_num) + str(users[id].word)
+        m = 'Вопрос ' +str(users[id].quest_num) +'\n' + str(users[id].word)
         send_message(id, m, ANSWER_KEYBOARD)
         return
 

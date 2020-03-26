@@ -122,8 +122,7 @@ answers_ind = [0, 1, 2, 3]
 
 def next_or_result(id, text):
     s = c.mydb.get_settings()
-    print(users[id].quest_num)
-    print(s.round)
+    
     if users[id].quest_num == s.round + 1:
         send_result(id, text)
         return
@@ -143,7 +142,6 @@ def send_result(id, text):
     info = c.mydb.get_user_info(id)
     message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
-    users[id].reset()
     users.pop(id)
     return
 

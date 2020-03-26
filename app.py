@@ -96,25 +96,23 @@ def message_proc(viber_request):
             send_text_mess(user_id, mess)
             return
         
-        if users.get(user_id) != None:
-            print('Ответ')
-            if message == users[user_id].trans[0]:
-                print("OK")
-                users[user_id].get_question()
-                users[user_id].correct_ans()
-                users[user_id].update_date()
-                change_keyboard(user_id)
-                next_or_result(user_id, "Верно")
-                return
-            else:
-                print("NEOK")
-                users[user_id].get_question()
-                users[user_id].update_date()
-                change_keyboard(user_id)
-                next_or_result(user_id, "Не верно")
-                return
-        else: 
+       
+        if message == users[user_id].trans[0]:
+            print("OK")
+            users[user_id].get_question()
+            users[user_id].correct_ans()
+            users[user_id].update_date()
+            change_keyboard(user_id)
+            next_or_result(user_id, "Верно")
             return
+        else:
+            print("NEOK")
+            users[user_id].get_question()
+            users[user_id].update_date()
+            change_keyboard(user_id)
+            next_or_result(user_id, "Не верно")
+            return
+       
 
 
 answers_ind = [0, 1, 2, 3]

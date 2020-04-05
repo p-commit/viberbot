@@ -157,7 +157,7 @@ def send_result(id, text):
     info = c.mydb.get_user_info(id)
     message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
-    users.pop(id)
+    users.re(id, None)
     return
 
 

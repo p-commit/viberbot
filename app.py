@@ -60,6 +60,11 @@ def set_settings():
 def incoming():
     viber_request = viber.parse_request(request.get_data())
 
+    if isinstance(viber_request, ViberConversationStartedRequest):
+        text = "Этот бот для заучивания английских слов. Для начала введите start или нажмити кнопку снизу"
+        viber.send_messages(viber_request.user.id, [TextMessage(text=text, keyboard=MAIN_KEYBOARD, tracking_data='tracking_data')])
+
+
     if viber_request.event_type == 'message':
         if viber_request.message_token not in messages:
             push_message(viber_request.message_token)
@@ -72,11 +77,6 @@ def incoming():
 
 
 def message_proc(viber_request):
-    if isinstance(viber_request, ViberConversationStartedRequest):
-        text = "Этот бот для заучивания английских слов. Для начала введите start или нажмити кнопку снизу"
-        viber.send_messages(viber_request.user.id, [TextMessage(text=text, keyboard=MAIN_KEYBOARD, tracking_data='tracking_data')])
-
-
     if isinstance(viber_request, ViberMessageRequest):
         user_id = viber_request.sender.id
         

@@ -25,7 +25,6 @@ bot_config = BotConfiguration(
     auth_token=TOKEN
 )
 viber = Api(bot_config)
-users = {}
 messages =[]
 
 for i in range(10):
@@ -85,25 +84,24 @@ def message_proc(viber_request):
             c.mydb.add_user(user_id)
      
         message = viber_request.message.text
+        user = c.mydb.get_user(user_id)
 
         if message == "start" or message == "Давай начнем!" or message == 'S':
-            print('start')
-            if users.get(user_id) == None:
-                new_user = c.User(user_id)
-                users[new_user.id] = new_user
-            else:
-                users[user_id].reset()
+            c.mydb.user_reset(user_id)
 
-            users[user_id].get_question()     
+            c.mydb.get_question(user_id)     
 
             change_keyboard(user_id)
-            m = 'Вопрос '+str(users[user_id].quest_num) + '\n' + users[user_id].word
+
+            
+            m = 'Вопрос '+str(user.quest_num) + '\n' + user.word
             send_message(user_id, m, ANSWER_KEYBOARD)
             return
 
         if message == "Привести пример":
             print('Пример')
-            ex = users[user_id].get_rand_example()
+            ex = user.examples.split('%')
+            ex = ex[random.randint(0, len(ex)-1)]
             send_message(user_id, ex, ANSWER_KEYBOARD)
             return
 
@@ -114,19 +112,21 @@ def message_proc(viber_request):
             return
         
         message = message.split('.')
-        if int(message[0]) == users[user_id].quest_num and message[1] == users[user_id].trans[0]:
+        ans = user.trans.split('%')
+        print(message)
+        print(ans)
+        if int(message[0]) == user.quest_num and message[1] == ans[0]:
             print("OK")
-            users[user_id].get_question()
-            users[user_id].correct_ans()
-            users[user_id].update_date()
+            c.mydb.get_question(user_id)
+            c.mydb.correct_answer(user_id, message[1])
             change_keyboard(user_id)
             next_or_result(user_id, "Верно")
             return
         
-        if int(message[0]) == users[user_id].quest_num and message[1] != users[user_id].trans[0]:
+        if int(message[0]) == user.quest_num and message[1] != ans[0]:
             print("NEOK")
-            users[user_id].get_question()
-            users[user_id].update_date()
+            c.mydb.get_question(user_id)
+            c.mydb.update_answer_date(user_id)
             change_keyboard(user_id)
             next_or_result(user_id, "Не верно")
             return
@@ -138,35 +138,40 @@ answers_ind = [0, 1, 2, 3]
 
 def next_or_result(id, text):
     s = c.mydb.get_settings()
-    
-    if users[id].quest_num == s.round + 1:
+    user = c.mydb.get_user(id)
+
+    if user.quest_num == s.round + 1:
         send_result(id, text)
         return
     else:
         viber.send_messages(id, TextMessage(text=text))
-        m = 'Вопрос ' +str(users[id].quest_num) +'\n' + str(users[id].word)
+        m = 'Вопрос ' +str(user.quest_num) +'\n' + str(user.word)
         send_message(id, m, ANSWER_KEYBOARD)
         return
 
 
 def send_result(id, text):
     s = c.mydb.get_settings()
+    user = c.mydb.get_user(id)
 
     viber.send_messages(id, TextMessage(text=text))
-    message = "Результат: " + str(users[id].correct) + "/" + str(s.round)
+    message = "Результат: " + str(user.correct) + "/" + str(s.round)
     viber.send_messages(id, TextMessage(text=message))
     info = c.mydb.get_user_info(id)
     message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
-    users.pop(id, None)
+    c.mydb.user_reset(id)
     return
 
 
 def change_keyboard(id):
     answers = random.sample(answers_ind, len(answers_ind))
+    user = c.mydb.get_user(id)
+    trans = user.trans.split('%')
+
     for i in range(len(answers)):
-        ANSWER_KEYBOARD["Buttons"][i]["Text"] = users[id].trans[answers[i]]
-        ANSWER_KEYBOARD["Buttons"][i]["ActionBody"] = str(users[id].quest_num) +'.'+ users[id].trans[answers[i]]
+        ANSWER_KEYBOARD["Buttons"][i]["Text"] = trans[answers[i]]
+        ANSWER_KEYBOARD["Buttons"][i]["ActionBody"] = str(user.quest_num) +'.'+ trans[answers[i]]
 
 
 def send_message(id, text, keyb):

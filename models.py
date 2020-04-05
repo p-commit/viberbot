@@ -38,6 +38,11 @@ class Users(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(String, unique=True)
     date = Column(DateTime)
+    word = Column(String)
+    trans = Column(String)
+    examples = Column(String)
+    quest_num = Column(Integer)
+    correct = Column(Integer)
 
     def __repr__(self):
         return '<User %r>' % (self.user_id)

@@ -9,14 +9,13 @@ from app import db
 class MyDB(object):
 
     def add_user(self, id):
-        u = m.Users(user_id=id)
+        u = m.Users(user_id=id, word = '', trans='', examples ='', quest_num=0, correct =0)
         db.session.add(u)
 
         w = db.session.query(m.Words).all()
         for word in w:
             l = m.Learning(user_id=id, word_id=word.id, correct=0)
             db.session.add(l)
-
         db.session.commit()
 
     def check_user(self, id):
@@ -28,30 +27,46 @@ class MyDB(object):
     def get_settings(self):
         settings = db.session.query(m.Settings).first()
         return settings
+    
+    def get_user(self,id):
+        u = db.session.query(m.Users).filter(m.Users.user_id == id).first()
+        return u
 
     def get_question(self, id):
         cor = 15
         res = []
         user = db.session.query(m.Users).filter(m.Users.user_id == id).first()
-        
+        user.quest_num +=1
+
         words = db.session.query(m.Learning, m.Words).filter(
             m.Learning.user_id == user.id, m.Learning.correct < cor)
         words = words.join(m.Learning, m.Learning.word_id == m.Words.id).all()
         words = random.sample(words, 4)
+        
+        user.word = words[0][1].word
 
+        w = ''
         for elem in words:
-            res.append(elem[1])
+            w+= elem[1].translation +'%'       
+        w = w[0:len(w)-1]
+        user.trans = w
+
 
         ex = db.session.query(m.Examples).filter(
             m.Examples.word_id == words[0][1].id).all()
+        e = ''
         for elem in ex:
-            res.append(elem.sentence)
-
-        return res
+            e += elem.sentence + '%'
+        e = e[0:len(e)-1]
+        user.examples = e
+       
+        db.session.commit()
 
     def correct_answer(self, id, word):
         user = db.session.query(m.Users).filter(m.Users.user_id == id).first()
-        
+        user.correct +=1
+        self.update_answer_date(id)
+
         words = db.session.query(m.Learning, m.Words).filter(
             m.Learning.user_id == user.id, m.Words.translation == word)
         words = words.join(m.Learning, m.Learning.word_id == m.Words.id).all()
@@ -88,46 +103,13 @@ class MyDB(object):
 
         return (learn, words_count, last_answer_date)
 
+    def user_reset(self, id):
+        u = db.session.query(m.Users).filter(m.Users.user_id == id).first()
+        u.word = ''
+        u.trans = ''
+        u.examples =''
+        u.quest_num = 0
+        u.correct = 0
+        db.session.commit()
 
 mydb = MyDB()
-
-
-class User(object):
-    def __init__(self, id):
-        self.id = id
-        self.word = ''
-        self.trans = []
-        self.examples = []
-        self.quest_num = 0
-        self.correct = 0
-
-    def get_question(self):
-        self.quest_num += 1
-        self.trans = []
-        self.examples = []
-        quest = mydb.get_question(self.id)
-
-        self.word = quest[0].word
-        for i in range(0, 4):
-            self.trans.append(quest[i].translation)
-
-        for i in range(4, len(quest)-1):
-            self.examples.append(quest[i])
-
-    def reset(self):
-        self.word = ''
-        self.trans = []
-        self.examples = []
-        self.quest_num = 0
-        self.correct = 0
-
-    def update_date(self):
-        mydb.update_answer_date(self.id)
-
-    def correct_ans(self):
-        self.correct += 1
-        mydb.correct_answer(self.id, self.trans[0])
-
-    def get_rand_example(self):
-        ind = random.randint(0, len(self.examples) - 1)
-        return self.examples[ind]

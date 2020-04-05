@@ -7,7 +7,7 @@ from viberbot.api.messages.keyboard_message import KeyboardMessage
 from viberbot.api.viber_requests import ViberMessageRequest
 from KEYBOARD import MAIN_KEYBOARD, ANSWER_KEYBOARD
 from viberbot.api.viber_requests import ViberConversationStartedRequest
-
+import datetime as dt
 import random
 from flask_sqlalchemy import SQLAlchemy
 
@@ -26,6 +26,15 @@ bot_config = BotConfiguration(
 )
 viber = Api(bot_config)
 users = {}
+messages =[]
+
+for i in range(10):
+    messages.append(0)
+
+def push_message(token):
+    del messages[0]
+    messages.append(token)
+
 import Classes as c
 
 @app.route('/')
@@ -51,8 +60,16 @@ def set_settings():
 @app.route('/incoming', methods=['POST'])
 def incoming():
     viber_request = viber.parse_request(request.get_data())
-    message_proc(viber_request)
+
+    if viber_request.event_type == 'message':
+        if viber_request.message_token not in messages:
+            push_message(viber_request.message_token)
+            print(messages)
+
+            message_proc(viber_request)
+    
     return Response(status=200)
+    
 
 
 def message_proc(viber_request):
@@ -162,6 +179,6 @@ def send_text_mess(id, text):
 
 
 
-if __name__ == '__main__':
-    app.run(port=80)
+# if __name__ == '__main__':
+#     app.run(port=80)
 

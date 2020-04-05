@@ -25,8 +25,12 @@ class MyDB(object):
             return True
         return False
 
+    def get_settings(self):
+        settings = db.session.query(m.Settings).first()
+        return settings
+
     def get_question(self, id):
-        cor = 5
+        cor = 15
         res = []
         user = db.session.query(m.Users).filter(m.Users.user_id == id).first()
         
@@ -60,9 +64,6 @@ class MyDB(object):
         user.date = dt.now()
         db.session.commit()
 
-    def get_settings(self):
-        settings = db.session.query(m.Settings).first()
-        return settings
 
     def set_settings(self, time, round, cwords):
         settings = db.session.query(m.Settings).first()

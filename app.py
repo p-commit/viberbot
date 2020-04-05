@@ -113,8 +113,8 @@ def message_proc(viber_request):
             send_text_mess(user_id, mess)
             return
         
-       
-        if message == users[user_id].trans[0]:
+        message = message.split('.')
+        if int(message[0]) == users[user_id].quest_num and message[1] == users[user_id].trans[0]:
             print("OK")
             users[user_id].get_question()
             users[user_id].correct_ans()
@@ -122,7 +122,8 @@ def message_proc(viber_request):
             change_keyboard(user_id)
             next_or_result(user_id, "Верно")
             return
-        else:
+        
+        if int(message[0]) == users[user_id].quest_num and message[1] != users[user_id].trans[0]:
             print("NEOK")
             users[user_id].get_question()
             users[user_id].update_date()
@@ -157,7 +158,7 @@ def send_result(id, text):
     info = c.mydb.get_user_info(id)
     message = "Выучено %d из %d \nПоследний опрос: %s" % info
     send_message(id, message, MAIN_KEYBOARD)
-    users.re(id, None)
+    users.pop(id, None)
     return
 
 
@@ -165,7 +166,7 @@ def change_keyboard(id):
     answers = random.sample(answers_ind, len(answers_ind))
     for i in range(len(answers)):
         ANSWER_KEYBOARD["Buttons"][i]["Text"] = users[id].trans[answers[i]]
-        ANSWER_KEYBOARD["Buttons"][i]["ActionBody"] = users[id].trans[answers[i]]
+        ANSWER_KEYBOARD["Buttons"][i]["ActionBody"] = str(users[id].quest_num) +'.'+ users[id].trans[answers[i]]
 
 
 def send_message(id, text, keyb):

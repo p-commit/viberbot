@@ -12,7 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from models import Users, Settings
 from apscheduler.schedulers.blocking import BlockingScheduler
 import requests
-from settings import WEBHOOK
+from settings import URL
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://jmltjbrbcabuar:f56c2482cf2dee0bd2bea44a1a622fdc30ceb0c0c1b81b207c0e98a565b89c06@ec2-54-247-118-139.eu-west-1.compute.amazonaws.com:5432/d1rt4olcajrbb2'
@@ -38,14 +38,10 @@ def send_text_message(id, text):
     viber.send_messages(id, text)
 
 
-@sched.scheduled_job('interval', seconds= 30) 
+@sched.scheduled_job('interval', minutes= 1) 
 def send_notification():
 
-    headers = {
-        'X-Viber-Auth-Token':'4ac8d8cbf4e7d1f9-24673fe4c1ca19ac-55268fef733cbeb', 
-        'Content-Type':'application/json'
-        }
-    response = requests.post(WEBHOOK, headers=headers)
+    requests.get(URL)
 
     users = db.session.query(Users)
     s = db.session.query(Settings).first()

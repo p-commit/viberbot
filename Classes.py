@@ -9,7 +9,7 @@ from app import db
 class MyDB(object):
 
     def add_user(self, id):
-        u = m.Users(user_id=id, word = '', trans='', examples ='', quest_num=0, correct =0)
+        u = m.Users(user_id=id,  date = dt.now(), word = '', trans='', examples ='', quest_num=0, correct =0)
         db.session.add(u)
 
         w = db.session.query(m.Words).all()
@@ -17,11 +17,14 @@ class MyDB(object):
             l = m.Learning(user_id=id, word_id=word.id, correct=0)
             db.session.add(l)
         db.session.commit()
+        print('Пользователь добавлен')
 
     def check_user(self, id):
         u = db.session.query(m.Users).filter(m.Users.user_id == id).all()
         if len(u) > 0:
+            print('Пользователь найден')
             return True
+        print('Пользователь не найден')
         return False
 
     def get_settings(self):

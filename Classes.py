@@ -11,6 +11,7 @@ class MyDB(object):
     def add_user(self, id):
         u = m.Users(user_id=id,  date = dt.now(), word = '', trans='', examples ='', quest_num=0, correct =0)
         db.session.add(u)
+        db.session.commit()
 
         w = db.session.query(m.Words).all()
         for word in w:

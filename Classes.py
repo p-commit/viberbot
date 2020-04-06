@@ -14,7 +14,7 @@ class MyDB(object):
 
         w = db.session.query(m.Words).all()
         for word in w:
-            l = m.Learning(user_id=id, word_id=word.id, correct=0)
+            l = m.Learning(user_id=u.id, word_id=word.id, correct=0)
             db.session.add(l)
         db.session.commit()
         print('Пользователь добавлен')

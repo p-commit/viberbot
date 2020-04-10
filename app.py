@@ -99,6 +99,7 @@ def message_proc(viber_request):
             print('Пример')
             ex = c.mydb.get_user(user_id).examples.split('%')
             ex = ex[random.randint(0, len(ex)-1)]
+            change_keyboard(user_id)
             send_message(user_id, ex, ANSWER_KEYBOARD)
             return
 
@@ -165,8 +166,7 @@ def send_result(id, text):
 
 
 def change_keyboard(id):
-    answers = random.sample(answers_ind, len(answers_ind))
-    
+    answers = random.sample(answers_ind, len(answers_ind))  
     user = c.mydb.get_user(id)
     trans = user.trans.split('%')
 

@@ -88,11 +88,8 @@ def message_proc(viber_request):
 
         if message == "start" or message == "Давай начнем!" or message == 'S':
             c.mydb.user_reset(user_id)
-
             c.mydb.get_question(user_id)     
-
             change_keyboard(user_id)
-
             
             m = 'Вопрос '+str(user.quest_num) + '\n' + user.word
             send_message(user_id, m, ANSWER_KEYBOARD)
@@ -115,6 +112,7 @@ def message_proc(viber_request):
         ans = user.trans.split('%')
         print(message)
         print(ans)
+        print(user.quest_num)
         if int(message[0]) == user.quest_num and message[1] == ans[0]:
             print("OK")
             c.mydb.get_question(user_id)
@@ -130,6 +128,8 @@ def message_proc(viber_request):
             change_keyboard(user_id)
             next_or_result(user_id, "Не верно")
             return
+
+        print('Мимо')
        
 
 
@@ -166,6 +166,7 @@ def send_result(id, text):
 
 def change_keyboard(id):
     answers = random.sample(answers_ind, len(answers_ind))
+    
     user = c.mydb.get_user(id)
     trans = user.trans.split('%')
 

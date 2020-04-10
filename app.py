@@ -97,7 +97,7 @@ def message_proc(viber_request):
 
         if message == "Привести пример":
             print('Пример')
-            ex = user.examples.split('%')
+            ex = c.mydb.get_user(user_id).examples.split('%')
             ex = ex[random.randint(0, len(ex)-1)]
             send_message(user_id, ex, ANSWER_KEYBOARD)
             return
@@ -109,11 +109,11 @@ def message_proc(viber_request):
             return
         
         message = message.split('.')
-        ans = user.trans.split('%')
+        ans = c.mydb.get_user(user_id).trans.split('%')
         print(message)
         print(ans)
-        print(user.quest_num)
-        if int(message[0]) == user.quest_num and message[1] == ans[0]:
+        print(c.mydb.get_user(user_id).quest_num)
+        if int(message[0]) == c.mydb.get_user(user_id).quest_num and message[1] == ans[0]:
             print("OK")
             c.mydb.get_question(user_id)
             c.mydb.correct_answer(user_id, message[1])
@@ -121,7 +121,7 @@ def message_proc(viber_request):
             next_or_result(user_id, "Верно")
             return
         
-        if int(message[0]) == user.quest_num and message[1] != ans[0]:
+        if int(message[0]) == c.mydb.get_user(user_id).quest_num and message[1] != ans[0]:
             print("NEOK")
             c.mydb.get_question(user_id)
             c.mydb.update_answer_date(user_id)
